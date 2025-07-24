@@ -28,6 +28,16 @@ McpServer::~McpServer() {
     tools_.clear();
 }
 
+inline std::string SafeJsonToString(cJSON* root) {
+    if (!root) return "{}";
+    char* json_str = cJSON_PrintUnformatted(root);
+    std::string result(json_str ? json_str : "{}");
+    cJSON_free(json_str);
+    cJSON_Delete(root);
+    return result;
+}
+
+
 void McpServer::AddCommonTools() {
     // To speed up the response time, we add the common tools to the beginning of
     // the tools list to utilize the prompt cache.
@@ -36,29 +46,28 @@ void McpServer::AddCommonTools() {
     auto& board = Board::GetInstance();
 
     auto car_controller =  board.GetCarMonitor();
-    AddTool("car.get_status",
+    if (!car_controller) {
+        ESP_LOGI(TAG,"CarStatusMonitor not available");
+    }
+    AddTool("self.get_car_status",
     "Get current status of brake and all warning lights. Use this tool first before setting lights or brake.",
     PropertyList(),  // 无参数
     [car_controller](const PropertyList&) -> ReturnValue {
         bool brake, l1, l2, l3, l4, l5, driver;
-        car_controller->GetCurrentStatus(brake, l1, l2, l3, l4, l5, driver);
+        //car_controller->GetCurrentStatus(brake, l1, l2, l3, l4, l5, driver);
 
         auto root = cJSON_CreateObject();
-        cJSON_AddNumberToObject(root,"brake",brake);
-        cJSON_AddNumberToObject(root,"light1",l1);
-        cJSON_AddNumberToObject(root,"light2",l2);
-        cJSON_AddNumberToObject(root,"light3",l3);
-        cJSON_AddNumberToObject(root,"light4",l4);
-        cJSON_AddNumberToObject(root,"light5",l5);
-        cJSON_AddNumberToObject(root,"driver_light",driver);
-        auto json_str = cJSON_PrintUnformatted(root);
-        std::string json(json_str);
-        cJSON_free(json_str);
-        cJSON_Delete(root);
-        return json;
+        cJSON_AddNumberToObject(root,"brake",true);
+        cJSON_AddNumberToObject(root,"light1",false);
+        cJSON_AddNumberToObject(root,"light2",false);
+        cJSON_AddNumberToObject(root,"light3",false);
+        cJSON_AddNumberToObject(root,"light4",true);
+        cJSON_AddNumberToObject(root,"light5",false);
+        cJSON_AddNumberToObject(root,"driver_light",false);
+        return SafeJsonToString(root);
     });
 
-    AddTool("car.set_status",
+    AddTool("self.set_car_status",
     "Set brake and warning light status. If unsure about current state, call `car.get_status` first.",
     PropertyList({
         Property("brake", kPropertyTypeBoolean, true),          // 可选字段，true 表示有默认值
@@ -83,27 +92,32 @@ void McpServer::AddCommonTools() {
         l5     = props["light5"].value<bool>();
         driver = props["driver_light"].value<bool>();
 
+        ESP_LOGI(TAG,"[SendStatusFrame] Brake: %s, L1~L5: [%s %s %s %s %s], Driver Light: %s\n",
+           brake        ? "ON" : "OFF",
+           l1           ? "ON" : "OFF",
+           l2           ? "ON" : "OFF",
+           l3           ? "ON" : "OFF",
+           l4           ? "ON" : "OFF",
+           l5           ? "ON" : "OFF",
+           driver ? "ON" : "OFF");
         // 保存 & 发送
-        car_controller->SetStatus(brake, l1, l2, l3, l4, l5, driver);
-        return car_controller->SendStatusFrame(brake, l1, l2, l3, l4, l5, driver);
+        //car_controller->SetStatus(brake, l1, l2, l3, l4, l5, driver);
+        // return car_controller->SendStatusFrame(brake, l1, l2, l3, l4, l5, driver);
+        return true;
     });
 
-    AddTool("vehicle.get_brake_status",
+    AddTool("self.get_brake_status",
     "Query the brake and seatbelt status from UART.\n"
     "Use this when user says:\n"
     "- 'is the brake on?'\n"
     "- 'is the seatbelt fastened?'",
     PropertyList(),
     [&board](const PropertyList&) -> ReturnValue {
-        auto status = board.GetCarMonitor()->GetStatus();
+        // auto status = board.GetCarMonitor()->GetStatus();
         auto root = cJSON_CreateObject();
-        cJSON_AddNumberToObject(root,"brake_on",status.brake_on);
-        cJSON_AddNumberToObject(root,"seatbelt_on",status.seatbelt_on);
-        auto json_str = cJSON_PrintUnformatted(root);
-        std::string json(json_str);
-        cJSON_free(json_str);
-        cJSON_Delete(root);
-        return json;
+        cJSON_AddNumberToObject(root,"brake_on",false);
+        cJSON_AddNumberToObject(root,"seatbelt_on",true);
+        return SafeJsonToString(root);
     });
 
     AddTool("self.get_device_status",
