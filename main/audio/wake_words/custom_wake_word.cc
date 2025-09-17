@@ -54,7 +54,7 @@ bool CustomWakeWord::Initialize(AudioCodec* codec) {
     }
 
     // 初始化 multinet (命令词识别)
-    mn_name_ = esp_srmodel_filter(models, ESP_MN_PREFIX, ESP_MN_CHINESE);
+    mn_name_ = esp_srmodel_filter(models, ESP_MN_PREFIX, ESP_MN_ENGLISH);
     if (mn_name_ == nullptr) {
         ESP_LOGE(TAG, "Failed to initialize multinet, mn_name is nullptr");
         ESP_LOGI(TAG, "Please refer to https://pcn7cs20v8cr.feishu.cn/wiki/CpQjwQsCJiQSWSkYEvrcxcbVnwh to add custom wake word");
@@ -67,6 +67,9 @@ bool CustomWakeWord::Initialize(AudioCodec* codec) {
     multinet_->set_det_threshold(multinet_model_data_, 0.5);
     esp_mn_commands_clear();
     esp_mn_commands_add(1, CONFIG_CUSTOM_WAKE_WORD);  // 添加自定义唤醒词作为命令词
+    esp_mn_commands_add(2, "MAKE A COFFEE");
+    esp_mn_commands_add(3, "HI KEY");
+    esp_mn_commands_add(4, "HELLO KEY");
     esp_mn_commands_update();
     
     // 打印所有的命令词
@@ -188,6 +191,15 @@ void CustomWakeWord::AudioDetectionTask() {
                 // 清理multinet状态，准备下次检测
                 multinet_->clean(multinet_model_data_);
                 ESP_LOGI(TAG, "Ready for next detection");
+            } else if (mn_result->command_id[0] == 2) {
+                ESP_LOGI(TAG, "MAKE A COFFEE");
+                multinet_->clean(multinet_model_data_);
+            } else if (mn_result->command_id[0] == 3) {
+                ESP_LOGI(TAG, "HI KEY");
+                multinet_->clean(multinet_model_data_);
+            } else if (mn_result->command_id[0] == 4) {
+                ESP_LOGI(TAG, "HELLO KEY");
+                multinet_->clean(multinet_model_data_);
             }
         } else if (mn_state == ESP_MN_STATE_TIMEOUT) {
             // 超时，清理状态继续检测

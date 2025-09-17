@@ -14,6 +14,8 @@
 #include <esp_lcd_panel_vendor.h>
 #include <wifi_station.h>
 
+#include "esp_lcd_gc9d01n.h"
+
 #include <driver/rtc_io.h>
 #include <esp_sleep.h>
 
@@ -146,7 +148,7 @@ private:
         panel_config.reset_gpio_num = DISPLAY_RES;
         panel_config.rgb_ele_order = LCD_RGB_ELEMENT_ORDER_RGB;
         panel_config.bits_per_pixel = 16;
-        ESP_ERROR_CHECK(esp_lcd_new_panel_st7789(panel_io_, &panel_config, &panel_));
+        ESP_ERROR_CHECK(esp_lcd_new_panel_gc9d01n(panel_io_, &panel_config, &panel_));
         ESP_ERROR_CHECK(esp_lcd_panel_reset(panel_));
         ESP_ERROR_CHECK(esp_lcd_panel_init(panel_));
         ESP_ERROR_CHECK(esp_lcd_panel_swap_xy(panel_, DISPLAY_SWAP_XY));

@@ -124,7 +124,7 @@ dependencies:
       type: service
     version: 0.5.3
   espressif/dl_fft:
-    component_hash: da00ee80aca795c33ed70e4489492ee87322a41814665890a485587340b680c3
+    component_hash: 7dadbd644c0d7ba4733cc3726ec4cff6edf27b043725e1115861dec1609a3d28
     dependencies:
     - name: idf
       require: private
@@ -132,7 +132,7 @@ dependencies:
     source:
       registry_url: https://components.espressif.com
       type: service
-    version: 0.2.0
+    version: 0.3.1
   espressif/esp-dsp:
     component_hash: 619639efc18cfa361a9e423739b9b0ffc14991effc6c027f955c2f2c3bf1754b
     dependencies:
@@ -454,6 +454,20 @@ dependencies:
       registry_url: https://components.espressif.com/
       type: service
     version: 2.5.5
+  espressif/qma6100p:
+    component_hash: 4b82c1b0159e343827019c968fe81ec3303f6e6bb05fcb347b0b4a3d11707bcf
+    dependencies:
+    - name: idf
+      require: private
+      version: '>=4.0'
+    - name: espressif/cmake_utilities
+      registry_url: https://components.espressif.com
+      require: private
+      version: 0.*
+    source:
+      registry_url: https://components.espressif.com/
+      type: service
+    version: 1.0.0
   espressif2022/image_player:
     component_hash: 8d09974862ba5323c0c97b77deb3be81ca7bd83e60f77265504c086cd69cc5cf
     dependencies:
@@ -471,7 +485,7 @@ dependencies:
   idf:
     source:
       type: idf
-    version: 5.4.2
+    version: 6.0.0
   lvgl/lvgl:
     component_hash: 096c69af22eaf8a2b721e3913da91918c5e6bf1a762a113ec01f401aa61337a0
     dependencies: []
@@ -587,6 +601,7 @@ direct_dependencies:
 - espressif/esp_mmap_assets
 - espressif/knob
 - espressif/led_strip
+- espressif/qma6100p
 - espressif2022/image_player
 - idf
 - lvgl/lvgl
@@ -596,6 +611,6 @@ direct_dependencies:
 - waveshare/esp_lcd_touch_cst9217
 - wvirgil123/esp_jpeg_simd
 - wvirgil123/sscma_client
-manifest_hash: 4c68708389a505aa66b08768bf7d9683948c3bb29210d1eda23e8d7bb9363e78
+manifest_hash: 7efca8b7dd5ff4615da3ab68fd85b538e74c65f91726b658a62a8ddd1cf823de
 target: esp32s3
 version: 2.0.0

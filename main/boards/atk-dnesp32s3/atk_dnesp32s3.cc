@@ -55,7 +55,7 @@ private:
     LcdDisplay* display_;
     XL9555* xl9555_;
     Esp32Camera* camera_;
-    CarStatusMonitor *brake_;
+    CarStatusMonitor brake_;
 
     void InitializeI2c() {
         // Initialize I2C peripheral
@@ -243,7 +243,7 @@ public:
     }
 
     virtual CarStatusMonitor* GetCarMonitor() override {
-        return brake_;
+        return &brake_;
     }
 };
 
